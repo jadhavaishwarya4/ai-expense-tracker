@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import mysql.connector
 import plotly.express as px
 
 from ai_features import (
@@ -42,43 +41,39 @@ def show_dashboard():
         f"₹{savings}"
     )
 
-    conn = mysql.connector.connect(
-        host="localhost",
-        user="root",
-        password="newpassword123",
-        database="expense_tracker"
+    chart_data = pd.DataFrame({
+        "Category": [
+            "Food",
+            "Shopping",
+            "Bills",
+            "Transport",
+            "Entertainment"
+        ],
+        "Amount": [
+            4000,
+            2500,
+            3000,
+            1500,
+            1500
+        ]
+    })
+
+    st.subheader("Expense Distribution")
+
+    pie_chart = px.pie(
+        chart_data,
+        names="Category",
+        values="Amount"
     )
 
-    query = '''
-    SELECT category, SUM(amount) as total
-    FROM expenses
-    GROUP BY category
-    '''
-
-    df = pd.read_sql(query, conn)
-
-    if not df.empty:
-
-        fig = px.pie(
-            df,
-            names='category',
-            values='total',
-            title='Expense Distribution'
-        )
-
-        st.plotly_chart(
-            fig,
-            use_container_width=True
-        )
+    st.plotly_chart(
+        pie_chart,
+        use_container_width=True
+    )
 
     st.subheader("🤖 AI Insights")
 
-    expense_df = pd.read_sql(
-        "SELECT * FROM expenses",
-        conn
-    )
-
-    insights = generate_insights(expense_df)
+    insights = generate_insights(chart_data)
 
     for item in insights:
         st.info(item)
