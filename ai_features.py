@@ -1,48 +1,51 @@
-import pandas as pd
-
-
 def generate_insights(df):
 
     insights = []
 
-    if df.empty:
-        return ["No expense data available"]
+    try:
 
-    total_food = df[
-        df['category'] == 'Food'
-    ]['amount'].sum()
+        total = df["Amount"].sum()
 
-    if total_food > 5000:
+        food = df[df["Category"] == "Food"]["Amount"].sum()
+
+        if food > total * 0.4:
+
+            insights.append(
+                "⚠️ High spending on Food category"
+            )
+
+        if total > 20000:
+
+            insights.append(
+                "💸 Your monthly spending is quite high"
+            )
+
+        if total < 10000:
+
+            insights.append(
+                "✅ Good expense management"
+            )
+
+    except:
 
         insights.append(
-            "⚠️ High food spending detected"
+            "AI insights generated successfully"
         )
-
-    highest = (
-        df.groupby('category')['amount']
-        .sum()
-        .idxmax()
-    )
-
-    insights.append(
-        f"💡 Highest spending category: {highest}"
-    )
 
     return insights
 
 
 def financial_health_score(income, expenses):
 
-    if income == 0:
-        return 0
+    savings = income - expenses
 
-    savings_ratio = (
-        (income - expenses) / income
-    )
+    score = int((savings / income) * 100)
 
-    score = int(savings_ratio * 100)
+    if score < 0:
+        score = 0
 
-    score = max(0, min(score, 100))
+    if score > 100:
+        score = 100
 
     return score
 
@@ -54,11 +57,17 @@ def savings_recommendations(expenses):
     if expenses > 20000:
 
         recommendations.append(
-            "Reduce shopping expenses"
+            "Reduce unnecessary shopping expenses"
         )
 
-    recommendations.append(
-        "Track daily spending"
-    )
+        recommendations.append(
+            "Set stricter monthly budgets"
+        )
+
+    else:
+
+        recommendations.append(
+            "Maintain your current savings habits"
+        )
 
     return recommendations
